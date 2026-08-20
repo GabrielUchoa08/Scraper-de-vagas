@@ -25,23 +25,23 @@ def buscar_vagas(termo, pagina=1):
     #retornando a lista de vagas 
     return data["results"]  
 
-# lista de termos de busca, organizados por área
+# lista de termos de busca organizados por área
 termos_busca = {
     "dados": ["cientista de dados", "analista de dados", "engenheiro de dados"],
     "tech": ["desenvolvedor", "devops"],
     "marketing": ["analista de marketing", "marketing digital"]
 }
 
-# data de hoje, calculada uma única vez, antes do loop
+# data de hoje, antes do loop
 data_hoje = date.today().isoformat()
 
 # lista que vai acumular todas as vagas encontradas
 todas_vagas = []
 
-# loop externo: percorre cada área e sua lista de termos
+# percorre cada área e sua lista de termos
 for area, termos in termos_busca.items():
 
-    # loop interno: percorre cada termo dentro daquela área
+    # percorre cada termo dentro daquela área
     for termo in termos:
 
         vagas_do_termo = buscar_vagas(termo)
