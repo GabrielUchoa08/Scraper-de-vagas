@@ -1,5 +1,6 @@
 import pandas as pd
 from glob import glob
+from skills import extrair_skills
 
 # encontrar todos os arquivos que batem com o padrão
 arquivos = glob("data/raw/vagas_*.json")
@@ -25,8 +26,24 @@ colunas_interesse = [
     "description", "created", "area_busca", "termo_busca", "data_coleta", "redirect_url"
 ]
 
-df_limpo = df[colunas_interesse]
+df_limpo = df[colunas_interesse].copy()
 
-# conferir o resultado
-print(df_limpo.shape)
-print(df_limpo.head())
+# tratar descrições vazias/nulas antes de extrair skills
+df_limpo["description"] = df_limpo["description"].fillna("")
+
+# criar coluna nova com a lista de skills encontradas em cada vaga
+df_limpo["skills"] = df_limpo["description"].apply(extrair_skills)
+
+# transformar em formato long
+df_skills = df_limpo.explode("skills")
+
+# remover linhas onde a skill ficou nula 
+df_skills = df_skills.dropna(subset=["skills"])
+
+print(df_skills[["title", "skills"]].head(15))
+
+# salvar os dois arquivos processados
+df_limpo.to_csv("data/processed/vagas_processadas.csv", index=False)
+df_skills.to_csv("data/processed/skills_processadas.csv", index=False)
+
+print("Arquivos salvos em data/processed/")
