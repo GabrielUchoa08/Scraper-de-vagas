@@ -1,11 +1,14 @@
 import requests
 import json
 from datetime import date
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  
 
 # credenciais da API
-APP_ID = "1a779ec3"
-APP_KEY = "cfbb58b9e0c9ff78b41109ef88f76ff8"
-
+APP_ID = os.getenv("ADZUNA_APP_ID")
+APP_KEY = os.getenv("ADZUNA_APP_KEY")
 
 def buscar_vagas(termo, pagina=1):
     #busca vagas na API da Adzuna para um termo específico e retorna a lista de resultados
