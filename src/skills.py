@@ -5,7 +5,7 @@ SKILLS = {
     "Deep Learning": ["deep learning", "aprendizado profundo"],
     "R": [" r "," r. ", "linguagem r"],
     "Pandas": ["pandas"],
-    "Git": ["git", "github"],
+    "Git": [" git ", " git.", " git,", "github"],
     "GCP": ["gcp", "google cloud platform"],
     "Excel": ["excel", "planilhas", "planilha"],
     "Power BI": ["power bi", "powerbi"],
