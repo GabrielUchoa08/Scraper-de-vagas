@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-# título da página
 st.title("Dashboard de Vagas de Emprego")
 
 # carregar os CSVs processados
@@ -15,8 +14,18 @@ st.write(f"Total de menções de skills: {len(df_skills)}")
 # mostrar uma tabela simples com as primeiras linhas
 st.write(df_vagas.head(10))
 
-st.subheader("Skills mais demandadas")
+areas_disponiveis = df_skills["area_busca"].unique()
 
-contagem_skills = df_skills["skills"].value_counts()
+areas_selecionadas = st.multiselect(
+       "Escolha a(s) área(s):",
+       options=areas_disponiveis,
+       default=areas_disponiveis  
+   )
+
+df_skills_filtrado = df_skills[df_skills["area_busca"].isin(areas_selecionadas)]
+
+contagem_skills = df_skills_filtrado["skills"].value_counts()
+
+st.subheader("Skills mais demandadas")
 
 st.bar_chart(contagem_skills.head(15))

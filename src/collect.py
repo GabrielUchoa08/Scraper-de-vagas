@@ -30,9 +30,9 @@ def buscar_vagas(termo, pagina=1):
 
 # lista de termos de busca organizados por área
 termos_busca = {
-    "dados": ["cientista de dados", "analista de dados", "engenheiro de dados"],
-    "tech": ["desenvolvedor", "devops"],
-    "marketing": ["analista de marketing", "marketing digital"]
+    "Dados": ["cientista de dados", "analista de dados", "engenheiro de dados"],
+    "Tech": ["desenvolvedor", "devops"],
+    "Marketing": ["analista de marketing", "marketing digital"]
 }
 
 # data de hoje, antes do loop
