@@ -1,6 +1,7 @@
 import pandas as pd
 from glob import glob
 from skills import extrair_skills
+from senioridade import extrair_senioridade
 
 # encontrar todos os arquivos que batem com o padrão
 arquivos = glob("data/raw/vagas_*.json")
@@ -31,8 +32,9 @@ df_limpo = df[colunas_interesse].copy()
 # tratar descrições vazias/nulas antes de extrair skills
 df_limpo["description"] = df_limpo["description"].fillna("")
 
-# criar coluna nova com a lista de skills encontradas em cada vaga
+# criar coluna nova com a lista de skills e senioridade encontradas em cada vaga
 df_limpo["skills"] = df_limpo["description"].apply(extrair_skills)
+df_limpo["senioridade"] = df_limpo["title"].apply(extrair_senioridade)
 
 # transformar em formato long
 df_skills = df_limpo.explode("skills")
