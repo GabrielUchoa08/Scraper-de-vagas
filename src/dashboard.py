@@ -11,11 +11,23 @@ senioridades_disponiveis = df_vagas["senioridade"].unique()
 
 # mostrar algumas infos básicas, só pra confirmar que carregou certo
 st.write(f"Total de vagas: {len(df_vagas)}")
-st.write(f"Total de menções de skills: {len(df_skills)}")
+
+colunas_tabela = [
+    "title",
+    "empresa",
+    "local",
+    "senioridade",
+    "area_busca",
+    "redirect_url"
+]
 
 # mostrar uma tabela simples com as primeiras linhas
-st.write(df_vagas.head(10))
-
+st.subheader("Vagas encontradas")
+st.dataframe(
+    df_vagas[colunas_tabela],
+    use_container_width=True,
+    hide_index=True
+)
 areas_disponiveis = df_skills["area_busca"].unique()
 
 areas_selecionadas = st.multiselect(
@@ -45,3 +57,12 @@ contagem_skills = df_skills_filtrado["skills"].value_counts()
 st.subheader("Skills mais demandadas")
 
 st.bar_chart(contagem_skills.head(15))
+
+st.subheader("Vagas por senioridade")
+
+contagem_senioridade = (
+    df_vagas_filtrado["senioridade"]
+    .value_counts()
+)
+
+st.bar_chart(contagem_senioridade)

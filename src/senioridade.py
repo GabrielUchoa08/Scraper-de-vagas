@@ -1,7 +1,7 @@
 SENIORIDADE = {
-    "Júnior": [" jr ", " jr. ", "júnior", "junior"],
-    "Pleno": ["pleno", " pl ", " pl. "],
-    "Sênior": ["sênior", "senior", " sr ", " sr. "],
+    "Júnior": [" jr ", " jr. ", "júnior", "junior", " I "],
+    "Pleno": ["pleno", " pl ", " pl. ", " II "],
+    "Sênior": ["sênior", "senior", " sr ", " sr. ", " III "],
     "Especialista": ["especialista", " esp ", " esp. "]
 }
 
