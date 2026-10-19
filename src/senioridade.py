@@ -1,15 +1,18 @@
+from matching import compilar_dict
+
 SENIORIDADE = {
-    "Júnior": [" jr ", " jr. ", "júnior", "junior", " I "],
-    "Pleno": ["pleno", " pl ", " pl. ", " II "],
-    "Sênior": ["sênior", "senior", " sr ", " sr. ", " III "],
-    "Especialista": ["especialista", " esp ", " esp. "]
+    "Estágio": ["estágio", "estagiário", "estagiária", "trainee"],
+    "Júnior": ["jr", "jr.", "júnior", "junior", "i"],
+    "Pleno": ["pleno", "pl", "pl.", "ii"],
+    "Sênior": ["sênior", "senior", "sr", "sr.", "iii"],
+    "Especialista": ["especialista"],
 }
 
-def extrair_senioridade(titulo, senioridade_dict=SENIORIDADE):
+PADROES_SENIORIDADE = compilar_dict(SENIORIDADE)
+
+def extrair_senioridade(titulo):
     titulo = str(titulo).lower()
-
-    for nivel, variacoes in senioridade_dict.items():
-        if any(variacao in titulo for variacao in variacoes):
+    for nivel, padroes in PADROES_SENIORIDADE.items():
+        if any(p.search(titulo) for p in padroes):
             return nivel
-
     return "Não especificado"

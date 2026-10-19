@@ -1,7 +1,5 @@
 from matching import compilar_dict
 
-PADROES_SKILLS = compilar_dict(SKILLS)
-
 SKILLS = {
     "Python": ["python"],
     "SQL": ["sql", "postgresql", "mysql", "sqlite"],
@@ -44,6 +42,8 @@ SKILLS = {
     "Figma": ["figma"],
     ".Net": [".net", "dotnet"],
 }
+
+PADROES_SKILLS = compilar_dict(SKILLS)
 
 #extraindo skills a partir do dicionário de skills
 def extrair_skills(texto):
