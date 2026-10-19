@@ -1,3 +1,7 @@
+from matching import compilar_dict
+
+PADROES_SKILLS = compilar_dict(SKILLS)
+
 SKILLS = {
     "Python": ["python"],
     "SQL": ["sql", "postgresql", "mysql", "sqlite"],
@@ -42,13 +46,7 @@ SKILLS = {
 }
 
 #extraindo skills a partir do dicionário de skills
-def extrair_skills(texto, skills_dict=SKILLS):
-    texto = texto.lower()  
-
-    skills_encontradas = []
-
-    for skill, variacoes in skills_dict.items():
-        if any(variacao in texto for variacao in variacoes):
-            skills_encontradas.append(skill)
-
-    return skills_encontradas
+def extrair_skills(texto):
+    texto = str(texto).lower()
+    return [skill for skill, padroes in PADROES_SKILLS.items()
+            if any(p.search(texto) for p in padroes)]
