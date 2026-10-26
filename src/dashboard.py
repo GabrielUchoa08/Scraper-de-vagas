@@ -1,68 +1,69 @@
 import streamlit as st
 import pandas as pd
 
-st.title("Dashboard de Vagas de Emprego")
+st.set_page_config(page_title="Radar de Skills", layout="wide")
 
-# carregar os CSVs processados
-df_vagas = pd.read_csv("data/processed/vagas_processadas.csv")
-df_skills = pd.read_csv("data/processed/skills_processadas.csv")
+@st.cache_data
+def carregar_dados():
+    vagas = pd.read_csv("data/processed/vagas_processadas.csv")
+    skills = pd.read_csv("data/processed/skills_processadas.csv")
+    return vagas, skills
 
-senioridades_disponiveis = df_vagas["senioridade"].unique()
+df_vagas, df_skills = carregar_dados()
 
-# mostrar algumas infos básicas, só pra confirmar que carregou certo
-st.write(f"Total de vagas: {len(df_vagas)}")
+st.title("Dashboard de Vagas")
 
-colunas_tabela = [
-    "title",
-    "empresa",
-    "local",
-    "senioridade",
-    "area_busca",
-    "redirect_url"
-]
+# filtro na barra lateral
+st.sidebar.header("Filtros")
 
-# mostrar uma tabela simples com as primeiras linhas
-st.subheader("Vagas encontradas")
-st.dataframe(
-    df_vagas[colunas_tabela],
-    use_container_width=True,
-    hide_index=True
-)
-areas_disponiveis = df_skills["area_busca"].unique()
+areas = sorted(df_vagas["area_busca"].unique())
+senioridades = sorted(df_vagas["senioridade"].unique())
 
-areas_selecionadas = st.multiselect(
-       "Escolha a(s) área(s):",
-       options=areas_disponiveis,
-       default=areas_disponiveis  
-   )
-
-senioridades_selecionadas = st.multiselect(
-    "Escolha a(s) senioridade(s):",
-    options=senioridades_disponiveis,
-    default=senioridades_disponiveis
+areas_selecionadas = st.sidebar.multiselect("Área", options=areas, default=areas)
+senioridades_selecionadas = st.sidebar.multiselect(
+    "Senioridade", options=senioridades, default=senioridades
 )
 
 df_vagas_filtrado = df_vagas[
     df_vagas["area_busca"].isin(areas_selecionadas)
     & df_vagas["senioridade"].isin(senioridades_selecionadas)
 ]
-
 df_skills_filtrado = df_skills[
     df_skills["area_busca"].isin(areas_selecionadas)
     & df_skills["senioridade"].isin(senioridades_selecionadas)
 ]
 
-contagem_skills = df_skills_filtrado["skills"].value_counts()
+# evita erro quando nada está selecionado
+if df_vagas_filtrado.empty:
+    st.warning("Nenhuma vaga com esses filtros. Ajuste a seleção na barra lateral.")
+    st.stop()
 
-st.subheader("Skills mais demandadas")
+# criação das KPIs
+pct_com_senioridade = (df_vagas_filtrado["senioridade"] != "Não especificado").sum() / len(df_vagas_filtrado) * 100
 
-st.bar_chart(contagem_skills.head(15))
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Vagas", len(df_vagas_filtrado))
+col2.metric("Empresas", df_vagas_filtrado["empresa"].nunique())
+col3.metric("Skills distintas", df_skills_filtrado["skills"].nunique())
+col4.metric("Senioridade identificada", f"{pct_com_senioridade:.0f}%")
 
-st.subheader("Vagas por senioridade")
+# separação das abas
+aba_skills, aba_senioridade, aba_vagas = st.tabs(["Skills", "Senioridade", "Vagas"])
 
-contagem_senioridade = (
-    df_vagas_filtrado["senioridade"]
-    .value_counts()
-)
+with aba_skills:
+    st.subheader("Skills mais demandadas")
+    contagem_skills = df_skills_filtrado["skills"].value_counts()
+    st.bar_chart(contagem_skills.head(15))
 
-st.bar_chart(contagem_senioridade)
+with aba_senioridade:
+    st.subheader("Vagas por senioridade")
+    st.bar_chart(df_vagas_filtrado["senioridade"].value_counts())
+
+with aba_vagas:
+    st.subheader("Vagas encontradas")
+    colunas_tabela = ["title", "empresa", "local", "senioridade", "area_busca", "redirect_url"]
+    st.dataframe(
+        df_vagas_filtrado[colunas_tabela],
+        hide_index=True,
+        column_config={"redirect_url": st.column_config.LinkColumn("Link da vaga")},
+    )
