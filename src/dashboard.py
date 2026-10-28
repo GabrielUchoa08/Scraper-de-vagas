@@ -78,3 +78,62 @@ with aba_skills:
     fig.update_layout(yaxis={"categoryorder": "total ascending"})
 
     st.plotly_chart(fig, use_container_width=True)
+
+with aba_comparativo:
+    st.subheader("Top skills por área")
+    st.caption("Compara todas as áreas. Respeita apenas o filtro de senioridade.")
+
+    top_por_area = st.slider("Skills por área", min_value=3, max_value=10, value=5)
+
+    # base: todas as áreas, só filtrando senioridade
+    df_vagas_sen = df_vagas[df_vagas["senioridade"].isin(senioridades_selecionadas)]
+    df_skills_sen = df_skills[df_skills["senioridade"].isin(senioridades_selecionadas)]
+
+    if df_vagas_sen.empty:
+        st.info("Nenhuma vaga para a senioridade selecionada.")
+    else:
+        # total de vagas de cada área (o denominador da porcentagem)
+        total_por_area = df_vagas_sen.groupby("area_busca")["id"].nunique()
+
+        # em quantas vagas cada skill aparece, por área
+        skills_por_area = (
+            df_skills_sen.groupby(["area_busca", "skills"])["id"]
+            .nunique()
+            .reset_index(name="vagas")
+        )
+
+        # porcentagem relativa ao total de vagas DA PRÓPRIA ÁREA
+        skills_por_area["pct"] = (
+            skills_por_area["vagas"]
+            / skills_por_area["area_busca"].map(total_por_area)
+            * 100
+        )
+
+        # mantém só as top N de cada área
+        top = (
+            skills_por_area.sort_values("pct", ascending=False)
+            .groupby("area_busca")
+            .head(top_por_area)
+        )
+
+        n_areas = skills_por_area["area_busca"].nunique()
+
+        fig_comp = px.bar(
+            top,
+            x="pct",
+            y="skills",
+            color="area_busca",
+            facet_row="area_busca",
+            orientation="h",
+            labels={"pct": "% das vagas", "skills": "", "area_busca": "Área"},
+            facet_row_spacing=0.08,
+            height=280 * n_areas,
+        )
+        fig_comp.update_yaxes(matches=None, showticklabels=True, categoryorder="total ascending")
+        fig_comp.update_xaxes(matches=None, showticklabels=True)
+        fig_comp.update_layout(showlegend=False)
+
+        # "area_busca=Dados" -> "Dados"
+        fig_comp.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+
+        st.plotly_chart(fig_comp, use_container_width=True)
