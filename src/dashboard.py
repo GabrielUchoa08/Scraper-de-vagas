@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 st.set_page_config(page_title="Radar de Skills", layout="wide")
 
@@ -48,22 +49,32 @@ col3.metric("Skills distintas", df_skills_filtrado["skills"].nunique())
 col4.metric("Senioridade identificada", f"{pct_com_senioridade:.0f}%")
 
 # separação das abas
-aba_skills, aba_senioridade, aba_vagas = st.tabs(["Skills", "Senioridade", "Vagas"])
-
+aba_skills, aba_comparativo, aba_senioridade, aba_vagas = st.tabs(
+    ["Skills", "Comparativo", "Senioridade", "Vagas"]
+)
 with aba_skills:
     st.subheader("Skills mais demandadas")
-    contagem_skills = df_skills_filtrado["skills"].value_counts()
-    st.bar_chart(contagem_skills.head(15))
 
-with aba_senioridade:
-    st.subheader("Vagas por senioridade")
-    st.bar_chart(df_vagas_filtrado["senioridade"].value_counts())
+    top_n = st.slider("Quantas skills mostrar", min_value=5, max_value=30, value=15)
 
-with aba_vagas:
-    st.subheader("Vagas encontradas")
-    colunas_tabela = ["title", "empresa", "local", "senioridade", "area_busca", "redirect_url"]
-    st.dataframe(
-        df_vagas_filtrado[colunas_tabela],
-        hide_index=True,
-        column_config={"redirect_url": st.column_config.LinkColumn("Link da vaga")},
+    total_vagas = df_vagas_filtrado["id"].nunique()
+    st.caption(f"Base: {total_vagas} vagas")
+
+    pct_skills = (
+        df_skills_filtrado.groupby("skills")["id"].nunique()   # vagas distintas por skill
+        / total_vagas * 100
     )
+    pct_skills = pct_skills.sort_values(ascending=False).head(top_n).reset_index()
+    pct_skills.columns = ["skill", "pct_vagas"]
+
+    fig = px.bar(
+        pct_skills,
+        x="pct_vagas",
+        y="skill",
+        orientation="h",
+        labels={"pct_vagas": "% das vagas", "skill": ""},
+        text=pct_skills["pct_vagas"].round(1),
+    )
+    fig.update_layout(yaxis={"categoryorder": "total ascending"})
+
+    st.plotly_chart(fig, use_container_width=True)
